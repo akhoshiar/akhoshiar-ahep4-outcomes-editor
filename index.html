@@ -94,7 +94,9 @@
     <label>Supervisor name:
       <input id="supervisor" placeholder="e.g., Dr Ali Hoshiar" />
     </label>
-
+    <label>University email:
+      <input id="email" placeholder="e.g., someone@essex.ac.uk" />
+    </label>
     <div class="radio" aria-label="Programme level">
       <label><input type="radio" name="level" value="UG" checked> UG</label>
       <label><input type="radio" name="level" value="PGT"> PGT</label>
@@ -200,6 +202,7 @@
   const cDiv = document.getElementById('c_outcomes');
   const mDiv = document.getElementById('m_outcomes');
   const supervisorInput = document.getElementById('supervisor');
+  const emailInput = document.getElementById('email');
   const notesInput = document.getElementById('notes');
   const statusEl = document.getElementById('status');
   const previousText = document.getElementById('previousText');
@@ -325,6 +328,14 @@
     if (!supervisor) { setStatus("Please enter your name.", "status-warn"); return; }
     if (!currentCode) { setStatus("Please select a module.", "status-warn"); return; }
 
+    const email = emailInput.value.trim().toLowerCase();
+    if (!email) { setStatus("Please enter your university email.", "status-warn"); return; }
+    if (!email.endsWith("@essex.ac.uk")) {
+      setStatus("Please use your official @essex.ac.uk email.", "status-warn");
+     return;
+    }
+
+
     const entry = modules[currentCode] || {outcomes: []};
     const {cs, ms} = splitOutcomes(entry.outcomes || []);
 
@@ -343,6 +354,7 @@
     const payload = {
       submitted_at: new Date().toISOString(),
       supervisor,
+      email,
       programme_level: level(),
       module_code: currentCode,
       outcomes_before: (entry.outcomes || []).slice(),
