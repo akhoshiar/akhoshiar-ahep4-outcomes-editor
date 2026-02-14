@@ -1,0 +1,21 @@
+{
+  "modules": {
+    "CE301": {
+      "outcomes": [
+        "C1",
+        "C3",
+        "C5"
+      ]
+    },
+    "CE801": {
+      "outcomes": [
+        "M1",
+        "M2",
+        "M5"
+      ]
+    },
+    "AHEP4": {
+      "outcomes": []
+    }
+  }
+}
