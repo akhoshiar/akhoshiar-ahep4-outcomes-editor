@@ -68,7 +68,6 @@
     .status-ok{ color:#0a7a28; }
     .status-warn{ color:#8a5a00; }
     .status-err{ color:#b00020; }
-
   </style>
 </head>
 <body>
@@ -149,6 +148,51 @@
   const VIDEO_URL  = ""; // optional: paste your guidance video URL here
 
   // =======================
+  // FULL AHEP TEXT (shown next to each checkbox)
+  // =======================
+  const AHEP_FULL = {
+    // ===== UG (C1–C18) =====
+    C1: "Apply knowledge of mathematics, statistics, natural science and engineering principles to the solution of complex problems. Some of the knowledge will be at the forefront of the particular subject of study.",
+    C2: "Analyse complex problems to reach substantiated conclusions using first principles of mathematics, statistics, natural science and engineering principles.",
+    C3: "Select and apply appropriate computational and analytical techniques to model complex problems, recognising the limitations of the techniques employed.",
+    C4: "Select and evaluate technical literature and other sources of information to address complex problems.",
+    C5: "Design solutions for complex problems that meet a combination of societal, user, business and customer needs as appropriate. This will involve consideration of applicable health & safety, diversity, inclusion, cultural, societal, environmental and commercial matters, codes of practice and industry standards.",
+    C6: "Apply an integrated or systems approach to the solution of complex problems.",
+    C7: "Evaluate the environmental and societal impact of solutions to complex problems and minimise adverse impacts.",
+    C8: "Identify and analyse ethical concerns and make reasoned ethical choices informed by professional codes of conduct.",
+    C9: "Use a risk management process to identify, evaluate and mitigate risks (the effects of uncertainty) associated with a particular project or activity.",
+    C10:"Adopt a holistic and proportionate approach to the mitigation of security risks.",
+    C11:"Adopt an inclusive approach to engineering practice and recognise the responsibilities, benefits and importance of supporting equality, diversity and inclusion.",
+    C12:"Use practical laboratory and workshop skills to investigate complex problems.",
+    C13:"Select and apply appropriate materials, equipment, engineering technologies and processes, recognising their limitations.",
+    C14:"Discuss the role of quality management systems and continuous improvement in the context of complex problems.",
+    C15:"Apply knowledge of engineering management principles, commercial context, project and change management, and relevant legal matters including intellectual property rights.",
+    C16:"Function effectively as an individual, and as a member or leader of a team.",
+    C17:"Communicate effectively on complex engineering matters with technical and non-technical audiences.",
+    C18:"Plan and record self-learning and development as the foundation for lifelong learning/CPD.",
+
+    // ===== PGT (M1–M18) =====
+    M1: "Apply a comprehensive knowledge of mathematics, statistics, natural science and engineering principles to the solution of complex problems. Much of the knowledge will be at the forefront of the particular subject of study and informed by a critical awareness of new developments and the wider context of engineering.",
+    M2: "Formulate and analyse complex problems to reach substantiated conclusions. This will involve evaluating available data using first principles of mathematics, statistics, natural science and engineering principles, and using engineering judgement to work with information that may be uncertain or incomplete, discussing the limitations of the techniques employed.",
+    M3: "Select and apply appropriate computational and analytical techniques to model complex problems, discussing the limitations of the techniques employed.",
+    M4: "Select and critically evaluate technical literature and other sources of information to solve complex problems.",
+    M5: "Design solutions for complex problems that evidence some originality and meet a combination of societal, user, business and customer needs as appropriate. This will involve consideration of applicable health and safety, diversity, inclusion, cultural, societal, environmental and commercial matters, codes of practice and industry standards.",
+    M6: "Apply an integrated or systems approach to the solution of complex problems.",
+    M7: "Evaluate the environmental and societal impact of solutions to complex problems (to include the entire life-cycle of a product or process) and minimise adverse impacts.",
+    M8: "Identify and analyse ethical concerns and make reasoned ethical choices informed by professional codes of conduct.",
+    M9: "Use a risk management process to identify, evaluate and mitigate risks (the effects of uncertainty) associated with a particular project or activity.",
+    M10:"Adopt a holistic and proportionate approach to the mitigation of security risks.",
+    M11:"Adopt an inclusive approach to engineering practice and recognise the responsibilities, benefits and importance of supporting equality, diversity and inclusion.",
+    M12:"Use practical laboratory and workshop skills to investigate complex problems.",
+    M13:"Select and apply appropriate materials, equipment, engineering technologies and processes, recognising their limitations.",
+    M14:"Discuss the role of quality management systems and continuous improvement in the context of complex problems.",
+    M15:"Apply knowledge of engineering management principles, commercial context, project and change management, and relevant legal matters including intellectual property rights.",
+    M16:"Function effectively as an individual, and as a member or leader of a team. Evaluate effectiveness of own and team performance.",
+    M17:"Communicate effectively on complex engineering matters with technical and non-technical audiences, evaluating the effectiveness of the methods used.",
+    M18:"Plan and record self-learning and development as the foundation for lifelong learning/CPD."
+  };
+
+  // =======================
   // App code
   // =======================
   const moduleSelect = document.getElementById('moduleSelect');
@@ -175,64 +219,6 @@
 
   let modules = {};
   let currentCode = null;
-  // =======================
-  // AHEP full text + plain-English labels
-  // =======================
-  const AHEP_INDEX = {
-    // ---- UG (C1–C18) ----
-    C1: { text: "Apply knowledge of mathematics, statistics, natural science and engineering principles to the solution of complex problems. Some of the knowledge will be at the forefront of the particular subject of study.", label: "Advanced knowledge application" },
-    C2: { text: "Analyse complex problems to reach substantiated conclusions using first principles of mathematics, statistics, natural science and engineering principles.", label: "First-principles analysis" },
-    C3: { text: "Select and apply appropriate computational and analytical techniques to model complex problems, recognising the limitations of the techniques employed.", label: "Modelling + computational methods + limitations" },
-    C4: { text: "Select and evaluate technical literature and other sources of information to address complex problems.", label: "Literature and evidence evaluation" },
-    C5: { text: "Design solutions for complex problems that meet a combination of societal, user, business and customer needs as appropriate. This will involve consideration of applicable health & safety, diversity, inclusion, cultural, societal, environmental and commercial matters, codes of practice and industry standards.", label: "Multi-constraint design (H&S, societal, environmental, commercial)" },
-    C6: { text: "Apply an integrated or systems approach to the solution of complex problems.", label: "Systems integration thinking" },
-    C7: { text: "Evaluate the environmental and societal impact of solutions to complex problems and minimise adverse impacts.", label: "Environmental & societal impact minimisation" },
-    C8: { text: "Identify and analyse ethical concerns and make reasoned ethical choices informed by professional codes of conduct.", label: "Ethical reasoning" },
-    C9: { text: "Use a risk management process to identify, evaluate and mitigate risks (the effects of uncertainty) associated with a particular project or activity.", label: "Risk management under uncertainty" },
-    C10:{ text: "Adopt a holistic and proportionate approach to the mitigation of security risks.", label: "Security risk mitigation" },
-    C11:{ text: "Adopt an inclusive approach to engineering practice and recognise the responsibilities, benefits and importance of supporting equality, diversity and inclusion.", label: "Inclusive practice (EDI)" },
-    C12:{ text: "Use practical laboratory and workshop skills to investigate complex problems.", label: "Practical investigation skills" },
-    C13:{ text: "Select and apply appropriate materials, equipment, engineering technologies and processes, recognising their limitations.", label: "Technology/material selection + limitations" },
-    C14:{ text: "Discuss the role of quality management systems and continuous improvement in the context of complex problems.", label: "Quality systems & continuous improvement" },
-    C15:{ text: "Apply knowledge of engineering management principles, commercial context, project and change management, and relevant legal matters including intellectual property rights.", label: "Engineering management, commercial & legal/IP" },
-    C16:{ text: "Function effectively as an individual, and as a member or leader of a team.", label: "Teamwork and leadership" },
-    C17:{ text: "Communicate effectively on complex engineering matters with technical and non-technical audiences.", label: "Communication (technical & non-technical)" },
-    C18:{ text: "Plan and record self-learning and development as the foundation for lifelong learning/CPD.", label: "Lifelong learning / CPD" },
-
-    // ---- PGT (M1–M18) ----
-    M1: { text: "Apply a comprehensive knowledge of mathematics, statistics, natural science and engineering principles to the solution of complex problems. Much of the knowledge will be at the forefront of the particular subject of study and informed by a critical awareness of new developments and the wider context of engineering.", label: "Frontier knowledge + critical awareness" },
-    M2: { text: "Formulate and analyse complex problems to reach substantiated conclusions. This will involve evaluating available data using first principles of mathematics, statistics, natural science and engineering principles, and using engineering judgement to work with information that may be uncertain or incomplete, discussing the limitations of the techniques employed.", label: "Judgement under uncertainty + limitations" },
-    M3: { text: "Select and apply appropriate computational and analytical techniques to model complex problems, discussing the limitations of the techniques employed.", label: "Advanced modelling + limitations (explicit)" },
-    M4: { text: "Select and critically evaluate technical literature and other sources of information to solve complex problems.", label: "Critical literature evaluation" },
-    M5: { text: "Design solutions for complex problems that evidence some originality and meet a combination of societal, user, business and customer needs as appropriate. This will involve consideration of applicable health and safety, diversity, inclusion, cultural, societal, environmental and commercial matters, codes of practice and industry standards.", label: "Original design + multi-constraint needs" },
-    M6: { text: "Apply an integrated or systems approach to the solution of complex problems.", label: "Systems approach" },
-    M7: { text: "Evaluate the environmental and societal impact of solutions to complex problems (to include the entire life-cycle of a product or process) and minimise adverse impacts.", label: "Life-cycle impact (LCA thinking)" },
-    M8: { text: "Identify and analyse ethical concerns and make reasoned ethical choices informed by professional codes of conduct.", label: "Ethical reasoning (deeper)" },
-    M9: { text: "Use a risk management process to identify, evaluate and mitigate risks (the effects of uncertainty) associated with a particular project or activity.", label: "Risk management (formal)" },
-    M10:{ text: "Adopt a holistic and proportionate approach to the mitigation of security risks.", label: "Security risk mitigation (holistic)" },
-    M11:{ text: "Adopt an inclusive approach to engineering practice and recognise the responsibilities, benefits and importance of supporting equality, diversity and inclusion.", label: "Inclusive practice (EDI)" },
-    M12:{ text: "Use practical laboratory and workshop skills to investigate complex problems.", label: "Practical investigation of complexity" },
-    M13:{ text: "Select and apply appropriate materials, equipment, engineering technologies and processes, recognising their limitations.", label: "Technology/material choice + limits" },
-    M14:{ text: "Discuss the role of quality management systems and continuous improvement in the context of complex problems.", label: "Quality systems + continuous improvement" },
-    M15:{ text: "Apply knowledge of engineering management principles, commercial context, project and change management, and relevant legal matters including intellectual property rights.", label: "Management + commercial + legal/IP" },
-    M16:{ text: "Function effectively as an individual, and as a member or leader of a team. Evaluate effectiveness of own and team performance.", label: "Leadership + evaluate performance" },
-    M17:{ text: "Communicate effectively on complex engineering matters with technical and non-technical audiences, evaluating the effectiveness of the methods used.", label: "Communication + evaluate effectiveness" },
-    M18:{ text: "Plan and record self-learning and development as the foundation for lifelong learning/CPD.", label: "Reflective CPD / lifelong learning" },
-  };
-
-  function showAHEP(lo){
-    const box = document.getElementById("loDescription");
-    const title = document.getElementById("loTitle");
-    const text = document.getElementById("loText");
-    const hint = document.getElementById("loHint");
-
-    const entry = AHEP_INDEX[lo];
-    title.textContent = entry ? `${lo} — ${entry.label}` : lo;
-    text.textContent  = entry ? entry.text : "No description found for this outcome.";
-    hint.textContent  = "Tip: Only tick outcomes that are explicitly assessed in this module.";
-
-    box.classList.remove("hidden");
-  }
 
   function buildLOList(prefix, n) {
     const out = [];
@@ -240,31 +226,20 @@
     return out;
   }
 
-    function renderChecklist(container, los, selectedSet) {
+  // ✅ FULL TEXT IS SHOWN HERE
+  function renderChecklist(container, los, selectedSet) {
     container.innerHTML = los.map(lo => {
       const checked = selectedSet.has(lo) ? "checked" : "";
-      const entry = AHEP_INDEX[lo];
-      const short = entry ? entry.label : "Click to view full AHEP text";
+      const full = AHEP_FULL[lo] || "";
       return `
         <div class="lo">
           <input type="checkbox" data-lo="${lo}" ${checked}/>
-          <div><span class="loCode" data-view="${lo}">${lo}</span></div>
-          <div class="muted">${short}</div>
+          <div><b>${lo}</b></div>
+          <div class="muted">${full}</div>
         </div>
       `;
     }).join("");
-
-    // Clicking the LO code shows the full AHEP wording
-    container.querySelectorAll('[data-view]').forEach(el => {
-      el.addEventListener('click', (e) => showAHEP(e.target.getAttribute('data-view')));
-    });
-
-    // Ticking a box also shows the full AHEP wording (helps users understand what they just selected)
-    container.querySelectorAll('input[type="checkbox"][data-lo]').forEach(ch => {
-      ch.addEventListener('change', (e) => showAHEP(e.target.getAttribute('data-lo')));
-    });
   }
-
 
   function level() {
     return document.querySelector('input[name="level"]:checked').value; // "UG" or "PGT"
