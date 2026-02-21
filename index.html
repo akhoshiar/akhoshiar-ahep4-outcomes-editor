@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Module Learning Outcomes Editor (prefilled)</title>
+  <style>
+    :root{
+      --text:#111;
+      --muted:#666;
+      --border:#ddd;
+      --bg:#fff;
+      --soft:#fafafa;
+      --accent:#0b5fff;
+    }
+    body { font-family: system-ui, Arial, sans-serif; margin: 24px; max-width: 1100px; color:var(--text); background:var(--bg); }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    select, input, button, textarea { font-size: 14px; padding: 8px; }
+    button { cursor: pointer; border-radius: 10px; border: 1px solid var(--border); background: #f7f7f7; }
+    button:hover{ background:#f0f0f0; }
+    button:disabled{ opacity:.6; cursor:not-allowed; }
+    .card { border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-top: 14px; }
+    .muted { color: var(--muted); }
+    .pill { display: inline-block; padding: 2px 8px; border: 1px solid var(--border); border-radius: 999px; font-size: 12px; }
+    .lo { display: grid; grid-template-columns: 24px 56px 1fr; gap: 10px; align-items: start; padding: 6px 0; border-bottom: 1px solid #f2f2f2;}
+    .sectiontitle { margin: 0 0 8px 0; }
+    .hidden { display:none; }
+    .prev { background: var(--soft); border: 1px dashed var(--border); padding: 10px; border-radius: 10px; }
+    .radio { display:flex; gap:10px; align-items:center; padding: 6px 10px; border: 1px solid var(--border); border-radius: 12px; background:#fff; }
+
+    /* Intro block (nice in Chrome) */
+    .intro{
+      margin: 14px 0 18px 0;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfbfb 100%);
+    }
+    .intro-title{
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+    .intro-list{
+      margin: 0 0 10px 18px;
+      padding: 0;
+      line-height: 1.5;
+    }
+    .intro-foot{
+      font-size: 13px;
+      color: var(--text);
+      padding-top: 8px;
+      border-top: 1px solid #eee;
+    }
+    .intro-foot code{ background:#f5f5f5; padding: 1px 6px; border-radius: 8px; border: 1px solid #eee; }
+    .hint{
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+    .linklike{
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .linklike:hover{ text-decoration: underline; }
+
+    /* Small status styles */
+    .status-ok{ color:#0a7a28; }
+    .status-warn{ color:#8a5a00; }
+    .status-err{ color:#b00020; }
+  </style>
+</head>
+<body>
+  <h2>Module learning outcomes editor</h2>
+
+  <div class="intro">
+    <div class="intro-title">Quick guide (AHEP4)</div>
+    <ul class="intro-list">
+      <li><b>Prefilled outcomes:</b> Outcomes are prefilled from the previous accreditation cycle.</li>
+      <li><b>Watch first:</b> Please watch the short (≈5-minute) guidance video explaining AHEP4 requirements and the update process.</li>
+      <li><b>Then update:</b> Review and update the outcomes to reflect the current module content.</li>
+    </ul>
+
+    <div class="intro-foot">
+      Prefilled from <code>module_learning_outcomes.txt</code>. Choose UG or PGT, select a module, adjust outcomes, then click <b>Submit</b>.
+      <span class="muted">(This page does not write to disk by itself; submissions are recorded via the server endpoint.)</span>
+      <div class="hint">
+        Video: <a id="videoLink" class="linklike" href="#" target="_blank" rel="noopener">open guidance video</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <label>Supervisor name:
+      <input id="supervisor" placeholder="e.g., Dr Ali Hoshiar" />
+    </label>
+    <label>University email:
+      <input id="email" placeholder="e.g., someone@essex.ac.uk" />
+    </label>
+    <div class="radio" aria-label="Programme level">
+      <label><input type="radio" name="level" value="UG" checked> UG</label>
+      <label><input type="radio" name="level" value="PGT"> PGT</label>
+    </div>
+
+    <label>Module:
+      <select id="moduleSelect"></select>
+    </label>
+
+    <span id="meta" class="pill"></span>
+  </div>
+
+  <div class="card">
+    <div class="prev">
+      <div class="muted">Previously recorded outcomes for this module:</div>
+      <div id="previousText"><span class="muted">—</span></div>
+    </div>
+
+    <div style="height:10px"></div>
+
+    <div id="ugBlock">
+      <h3 class="sectiontitle">AHEP4 UG outcomes (C1–C18)</h3>
+      <div id="c_outcomes"></div>
+    </div>
+
+    <div id="pgBlock" class="hidden">
+      <h3 class="sectiontitle">AHEP4 PGT outcomes (M1–M18)</h3>
+      <div id="m_outcomes"></div>
+    </div>
+
+    <div style="margin-top:12px">
+      <div class="muted">Notes (optional)</div>
+      <textarea id="notes" rows="4" style="width:100%" placeholder="Optional: evidence/assessment notes supporting the mapping..."></textarea>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <button id="submitBtn">Submit (record submission)</button>
+      <label class="muted" style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="downloadBackup" checked />
+        Download a backup JSON to my computer
+      </label>
+      <span id="status" class="muted"></span>
+    </div>
+  </div>
+
+<script>
+  // =======================
+  // CONFIG (edit these)
+  // =======================
+  const WORKER_URL = "https://ahep4-outcomes-submit.ali-k-hoshiar.workers.dev"; // Cloudflare Worker endpoint
+  const VIDEO_URL  = ""; // optional: paste your guidance video URL here
+
+  // =======================
+  // FULL AHEP TEXT (shown next to each checkbox)
+  // =======================
+  const AHEP_FULL = {
+    // ===== UG (C1–C18) =====
+    C1: "Apply knowledge of mathematics, statistics, natural science and engineering principles to the solution of complex problems. Some of the knowledge will be at the forefront of the particular subject of study.",
+    C2: "Analyse complex problems to reach substantiated conclusions using first principles of mathematics, statistics, natural science and engineering principles.",
+    C3: "Select and apply appropriate computational and analytical techniques to model complex problems, recognising the limitations of the techniques employed.",
+    C4: "Select and evaluate technical literature and other sources of information to address complex problems.",
+    C5: "Design solutions for complex problems that meet a combination of societal, user, business and customer needs as appropriate. This will involve consideration of applicable health & safety, diversity, inclusion, cultural, societal, environmental and commercial matters, codes of practice and industry standards.",
+    C6: "Apply an integrated or systems approach to the solution of complex problems.",
+    C7: "Evaluate the environmental and societal impact of solutions to complex problems and minimise adverse impacts.",
+    C8: "Identify and analyse ethical concerns and make reasoned ethical choices informed by professional codes of conduct.",
+    C9: "Use a risk management process to identify, evaluate and mitigate risks (the effects of uncertainty) associated with a particular project or activity.",
+    C10:"Adopt a holistic and proportionate approach to the mitigation of security risks.",
+    C11:"Adopt an inclusive approach to engineering practice and recognise the responsibilities, benefits and importance of supporting equality, diversity and inclusion.",
+    C12:"Use practical laboratory and workshop skills to investigate complex problems.",
+    C13:"Select and apply appropriate materials, equipment, engineering technologies and processes, recognising their limitations.",
+    C14:"Discuss the role of quality management systems and continuous improvement in the context of complex problems.",
+    C15:"Apply knowledge of engineering management principles, commercial context, project and change management, and relevant legal matters including intellectual property rights.",
+    C16:"Function effectively as an individual, and as a member or leader of a team.",
+    C17:"Communicate effectively on complex engineering matters with technical and non-technical audiences.",
+    C18:"Plan and record self-learning and development as the foundation for lifelong learning/CPD.",
+
+    // ===== PGT (M1–M18) =====
+    M1: "Apply a comprehensive knowledge of mathematics, statistics, natural science and engineering principles to the solution of complex problems. Much of the knowledge will be at the forefront of the particular subject of study and informed by a critical awareness of new developments and the wider context of engineering.",
+    M2: "Formulate and analyse complex problems to reach substantiated conclusions. This will involve evaluating available data using first principles of mathematics, statistics, natural science and engineering principles, and using engineering judgement to work with information that may be uncertain or incomplete, discussing the limitations of the techniques employed.",
+    M3: "Select and apply appropriate computational and analytical techniques to model complex problems, discussing the limitations of the techniques employed.",
+    M4: "Select and critically evaluate technical literature and other sources of information to solve complex problems.",
+    M5: "Design solutions for complex problems that evidence some originality and meet a combination of societal, user, business and customer needs as appropriate. This will involve consideration of applicable health and safety, diversity, inclusion, cultural, societal, environmental and commercial matters, codes of practice and industry standards.",
+    M6: "Apply an integrated or systems approach to the solution of complex problems.",
+    M7: "Evaluate the environmental and societal impact of solutions to complex problems (to include the entire life-cycle of a product or process) and minimise adverse impacts.",
+    M8: "Identify and analyse ethical concerns and make reasoned ethical choices informed by professional codes of conduct.",
+    M9: "Use a risk management process to identify, evaluate and mitigate risks (the effects of uncertainty) associated with a particular project or activity.",
+    M10:"Adopt a holistic and proportionate approach to the mitigation of security risks.",
+    M11:"Adopt an inclusive approach to engineering practice and recognise the responsibilities, benefits and importance of supporting equality, diversity and inclusion.",
+    M12:"Use practical laboratory and workshop skills to investigate complex problems.",
+    M13:"Select and apply appropriate materials, equipment, engineering technologies and processes, recognising their limitations.",
+    M14:"Discuss the role of quality management systems and continuous improvement in the context of complex problems.",
+    M15:"Apply knowledge of engineering management principles, commercial context, project and change management, and relevant legal matters including intellectual property rights.",
+    M16:"Function effectively as an individual, and as a member or leader of a team. Evaluate effectiveness of own and team performance.",
+    M17:"Communicate effectively on complex engineering matters with technical and non-technical audiences, evaluating the effectiveness of the methods used.",
+    M18:"Plan and record self-learning and development as the foundation for lifelong learning/CPD."
+  };
+
+  // =======================
+  // App code
+  // =======================
+  const moduleSelect = document.getElementById('moduleSelect');
+  const meta = document.getElementById('meta');
+  const cDiv = document.getElementById('c_outcomes');
+  const mDiv = document.getElementById('m_outcomes');
+  const supervisorInput = document.getElementById('supervisor');
+  const emailInput = document.getElementById('email');
+  const notesInput = document.getElementById('notes');
+  const statusEl = document.getElementById('status');
+  const previousText = document.getElementById('previousText');
+  const ugBlock = document.getElementById('ugBlock');
+  const pgBlock = document.getElementById('pgBlock');
+  const submitBtn = document.getElementById('submitBtn');
+  const downloadBackup = document.getElementById('downloadBackup');
+  const videoLink = document.getElementById('videoLink');
+
+  if (VIDEO_URL) {
+    videoLink.href = VIDEO_URL;
+  } else {
+    videoLink.textContent = "add VIDEO_URL in index.html";
+    videoLink.href = "#";
+    videoLink.addEventListener("click", (e) => e.preventDefault());
+  }
+
+  let modules = {};
+  let currentCode = null;
+
+  function buildLOList(prefix, n) {
+    const out = [];
+    for (let i=1;i<=n;i++) out.push(prefix + i);
+    return out;
+  }
+
+  // ✅ FULL TEXT IS SHOWN HERE
+  function renderChecklist(container, los, selectedSet) {
+    container.innerHTML = los.map(lo => {
+      const checked = selectedSet.has(lo) ? "checked" : "";
+      const full = AHEP_FULL[lo] || "";
+      return `
+        <div class="lo">
+          <input type="checkbox" data-lo="${lo}" ${checked}/>
+          <div><b>${lo}</b></div>
+          <div class="muted">${full}</div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function level() {
+    return document.querySelector('input[name="level"]:checked').value; // "UG" or "PGT"
+  }
+
+  function splitOutcomes(outcomes) {
+    const cs = (outcomes || []).filter(x => x.startsWith("C"));
+    const ms = (outcomes || []).filter(x => x.startsWith("M"));
+    return {cs, ms};
+  }
+
+  function renderPrevious(outcomes) {
+    if (!outcomes || !outcomes.length) {
+      previousText.innerHTML = `<span class="muted">No outcomes recorded yet.</span>`;
+      return;
+    }
+    previousText.textContent = outcomes.join(", ");
+  }
+
+  function renderModule(code) {
+    currentCode = code;
+    const entry = modules[code] || {outcomes: []};
+    const {cs, ms} = splitOutcomes(entry.outcomes || []);
+    const lvl = level();
+
+    const prev = (lvl === "UG") ? cs : ms;
+    renderPrevious(prev);
+
+    if (lvl === "UG") {
+      ugBlock.classList.remove("hidden");
+      pgBlock.classList.add("hidden");
+      meta.textContent = prev.length ? `${prev.length} UG outcomes prefilled` : "No UG outcomes recorded (yet)";
+      renderChecklist(cDiv, buildLOList("C", 18), new Set(cs));
+    } else {
+      pgBlock.classList.remove("hidden");
+      ugBlock.classList.add("hidden");
+      meta.textContent = prev.length ? `${prev.length} PGT outcomes prefilled` : "No PGT outcomes recorded (yet)";
+      renderChecklist(mDiv, buildLOList("M", 18), new Set(ms));
+    }
+  }
+
+  function getSelectedFrom(container) {
+    const checks = container.querySelectorAll('input[type="checkbox"][data-lo]');
+    const out = [];
+    checks.forEach(ch => { if (ch.checked) out.push(ch.getAttribute('data-lo')); });
+    return out;
+  }
+
+  function downloadJson(obj, filename) {
+    const blob = new Blob([JSON.stringify(obj, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function setStatus(msg, cls) {
+    statusEl.className = cls ? cls : "muted";
+    statusEl.textContent = msg;
+  }
+
+  async function submitToWorker(payload) {
+    const res = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const text = await res.text();
+    if (!res.ok) throw new Error(`Worker error ${res.status}: ${text}`);
+    try { return JSON.parse(text); } catch { return { ok: true, raw: text }; }
+  }
+
+  moduleSelect.addEventListener('change', e => renderModule(e.target.value));
+  document.querySelectorAll('input[name="level"]').forEach(r => {
+    r.addEventListener('change', () => renderModule(moduleSelect.value));
+  });
+
+  document.getElementById('submitBtn').addEventListener('click', async () => {
+    const supervisor = supervisorInput.value.trim();
+    if (!supervisor) { setStatus("Please enter your name.", "status-warn"); return; }
+    if (!currentCode) { setStatus("Please select a module.", "status-warn"); return; }
+
+    const email = emailInput.value.trim().toLowerCase();
+    if (!email) { setStatus("Please enter your university email.", "status-warn"); return; }
+    if (!email.endsWith("@essex.ac.uk")) {
+      setStatus("Please use your official @essex.ac.uk email.", "status-warn");
+     return;
+    }
+
+
+    const entry = modules[currentCode] || {outcomes: []};
+    const {cs, ms} = splitOutcomes(entry.outcomes || []);
+
+    let newCs = cs.slice();
+    let newMs = ms.slice();
+    if (level() === "UG") newCs = getSelectedFrom(cDiv);
+    else newMs = getSelectedFrom(mDiv);
+
+    const after = [...new Set([...newCs, ...newMs])];
+    after.sort((a,b) => {
+      const pa=a[0], pb=b[0];
+      if (pa!==pb) return pa.localeCompare(pb);
+      return parseInt(a.slice(1),10)-parseInt(b.slice(1),10);
+    });
+
+    const payload = {
+      submitted_at: new Date().toISOString(),
+      supervisor,
+      email,
+      programme_level: level(),
+      module_code: currentCode,
+      outcomes_before: (entry.outcomes || []).slice(),
+      outcomes_after: after,
+      notes: notesInput.value.trim()
+    };
+
+    const fname = `${currentCode}_${payload.programme_level}_outcomes_update_${payload.submitted_at.replaceAll(':','-')}.json`;
+
+    submitBtn.disabled = true;
+    setStatus("Submitting…", "muted");
+
+    try {
+      const out = await submitToWorker(payload);
+
+      if (downloadBackup.checked) {
+        downloadJson(payload, fname);
+      }
+
+      if (out && out.html_url) {
+        setStatus(`Submitted ✅ Saved in GitHub Issues: ${out.html_url}`, "status-ok");
+      } else {
+        setStatus("Submitted ✅ Saved in GitHub Issues.", "status-ok");
+      }
+    } catch (e) {
+      console.error(e);
+      // Fallback: never lose data
+      if (downloadBackup.checked) downloadJson(payload, fname);
+      setStatus(`Submit failed (saved locally if enabled): ${e.message}`, "status-err");
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  (async function init(){
+    try {
+      const res = await fetch('./modules_from_module_learning_outcomes.json');
+      if (!res.ok) throw new Error(`Failed to load dataset: ${res.status}`);
+      const data = await res.json();
+
+      // Support BOTH shapes:
+      //  A) { modules: { "CE101": { outcomes:[...] }, ... } }   (object/dictionary)
+      //  B) { modules: [ { code:"CE101-4-FY", outcomes:[...], ... }, ... ] }  (array)
+      const normalized = {};
+
+      if (Array.isArray(data.modules)) {
+        data.modules.forEach((item, idx) => {
+          if (!item) return;
+          const code = item.code || item.new_name || item.module_code || String(idx);
+          const outcomes = item.outcomes || item.outcomes_after || item.outcomes_before || [];
+          normalized[code] = { outcomes };
+        });
+      } else if (data.modules && typeof data.modules === 'object') {
+        Object.keys(data.modules).forEach(code => {
+          const entry = data.modules[code] || {};
+          const outcomes = entry.outcomes || entry.outcomes_after || entry.outcomes_before || [];
+          normalized[code] = { outcomes };
+        });
+      } else {
+        throw new Error("Dataset has no 'modules' field in a recognised format.");
+      }
+
+      modules = normalized;
+
+      // Populate dropdown
+      const codes = Object.keys(modules).sort((a,b) => a.localeCompare(b, undefined, {numeric:true}));
+      moduleSelect.innerHTML = codes.map(c => `<option value="${c}">${c}</option>`).join('');
+      if (!codes.length) throw new Error("No modules found in dataset.");
+
+      renderModule(codes[0]);
+      setStatus("Loaded dataset.", "muted");
+    } catch (e) {
+      console.error(e);
+      setStatus(e.message, "status-err");
+    }
+  })();
+</script>
+</body>
+</html>
