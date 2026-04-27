@@ -28,7 +28,6 @@
     .prev { background: var(--soft); border: 1px dashed var(--border); padding: 10px; border-radius: 10px; }
     .radio { display:flex; gap:10px; align-items:center; padding: 6px 10px; border: 1px solid var(--border); border-radius: 12px; background:#fff; }
 
-    /* Intro block (nice in Chrome) */
     .intro{
       margin: 14px 0 18px 0;
       border: 1px solid var(--border);
@@ -64,48 +63,49 @@
     }
     .linklike:hover{ text-decoration: underline; }
 
-    /* Small status styles */
     .status-ok{ color:#0a7a28; }
     .status-warn{ color:#8a5a00; }
     .status-err{ color:#b00020; }
   </style>
 </head>
+
 <body>
   <h2>Module learning outcomes editor</h2>
 
   <div class="intro">
     <div class="intro-title">Quick guide (AHEP4)</div>
+
     <ul class="intro-list">
       <li><b>Prefilled outcomes:</b> Outcomes are prefilled from the previous accreditation cycle.</li>
-      <li><b>Watch first:</b> Please watch the short (≈5-minute) guidance video explaining AHEP4 requirements and the update process.</li>
+      <li><b>Watch first:</b> Please watch the two short guidance videos before editing the module outcomes.</li>
       <li><b>Then update:</b> Review and update the outcomes to reflect the current module content.</li>
     </ul>
 
     <div class="intro-foot">
       Prefilled from <code>module_learning_outcomes.txt</code>. Choose UG or PGT, select a module, adjust outcomes, then click <b>Submit</b>.
       <span class="muted">(This page does not write to disk by itself; submissions are recorded via the server endpoint.)</span>
-      <div class="hint">
-  <b>Watch these short videos before starting:</b>
-  <ul style="margin-top:6px;">
-    <li>
-      <a class="linklike"
-         href="https://youtu.be/Rb78wZame7Y"
-         target="_blank"
-         rel="noopener">
-         AHEP4 Tutorial (~6 min)
-      </a>
-    </li>
 
-    <li>
-      <a class="linklike"
-         href="https://youtu.be/EQn2nzK0V84"
-         target="_blank"
-         rel="noopener">
-         How to Use the Website (~5 min)
-      </a>
-    </li>
-  </ul>
-</div>
+      <div class="hint">
+        <b>Watch these short videos before starting:</b>
+        <ul style="margin-top:6px;">
+          <li>
+            <a class="linklike"
+               href="https://youtu.be/Rb78wZame7Y"
+               target="_blank"
+               rel="noopener">
+              AHEP4 Tutorial (~6 min)
+            </a>
+          </li>
+          <li>
+            <a class="linklike"
+               href="https://youtu.be/EQn2nzK0V84"
+               target="_blank"
+               rel="noopener">
+              How to Use the Website (~5 min)
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 
@@ -113,9 +113,11 @@
     <label>Supervisor name:
       <input id="supervisor" placeholder="e.g., Dr Ali Hoshiar" />
     </label>
+
     <label>University email:
       <input id="email" placeholder="e.g., someone@essex.ac.uk" />
     </label>
+
     <div class="radio" aria-label="Programme level">
       <label><input type="radio" name="level" value="UG" checked> UG</label>
       <label><input type="radio" name="level" value="PGT"> PGT</label>
@@ -162,17 +164,9 @@
   </div>
 
 <script>
-  // =======================
-  // CONFIG (edit these)
-  // =======================
-  const WORKER_URL = "https://ahep4-outcomes-submit.ali-k-hoshiar.workers.dev"; // Cloudflare Worker endpoint
-  const VIDEO_URL  = ""; // optional: paste your guidance video URL here
+  const WORKER_URL = "https://ahep4-outcomes-submit.ali-k-hoshiar.workers.dev";
 
-  // =======================
-  // FULL AHEP TEXT (shown next to each checkbox)
-  // =======================
   const AHEP_FULL = {
-    // ===== UG (C1–C18) =====
     C1: "Apply knowledge of mathematics, statistics, natural science and engineering principles to the solution of complex problems. Some of the knowledge will be at the forefront of the particular subject of study.",
     C2: "Analyse complex problems to reach substantiated conclusions using first principles of mathematics, statistics, natural science and engineering principles.",
     C3: "Select and apply appropriate computational and analytical techniques to model complex problems, recognising the limitations of the techniques employed.",
@@ -181,7 +175,7 @@
     C6: "Apply an integrated or systems approach to the solution of complex problems.",
     C7: "Evaluate the environmental and societal impact of solutions to complex problems and minimise adverse impacts.",
     C8: "Identify and analyse ethical concerns and make reasoned ethical choices informed by professional codes of conduct.",
-    C9: "Use a risk management process to identify, evaluate and mitigate risks (the effects of uncertainty) associated with a particular project or activity.",
+    C9: "Use a risk management process to identify, evaluate and mitigate risks associated with a particular project or activity.",
     C10:"Adopt a holistic and proportionate approach to the mitigation of security risks.",
     C11:"Adopt an inclusive approach to engineering practice and recognise the responsibilities, benefits and importance of supporting equality, diversity and inclusion.",
     C12:"Use practical laboratory and workshop skills to investigate complex problems.",
@@ -192,16 +186,15 @@
     C17:"Communicate effectively on complex engineering matters with technical and non-technical audiences.",
     C18:"Plan and record self-learning and development as the foundation for lifelong learning/CPD.",
 
-    // ===== PGT (M1–M18) =====
     M1: "Apply a comprehensive knowledge of mathematics, statistics, natural science and engineering principles to the solution of complex problems. Much of the knowledge will be at the forefront of the particular subject of study and informed by a critical awareness of new developments and the wider context of engineering.",
     M2: "Formulate and analyse complex problems to reach substantiated conclusions. This will involve evaluating available data using first principles of mathematics, statistics, natural science and engineering principles, and using engineering judgement to work with information that may be uncertain or incomplete, discussing the limitations of the techniques employed.",
     M3: "Select and apply appropriate computational and analytical techniques to model complex problems, discussing the limitations of the techniques employed.",
     M4: "Select and critically evaluate technical literature and other sources of information to solve complex problems.",
     M5: "Design solutions for complex problems that evidence some originality and meet a combination of societal, user, business and customer needs as appropriate. This will involve consideration of applicable health and safety, diversity, inclusion, cultural, societal, environmental and commercial matters, codes of practice and industry standards.",
     M6: "Apply an integrated or systems approach to the solution of complex problems.",
-    M7: "Evaluate the environmental and societal impact of solutions to complex problems (to include the entire life-cycle of a product or process) and minimise adverse impacts.",
+    M7: "Evaluate the environmental and societal impact of solutions to complex problems and minimise adverse impacts.",
     M8: "Identify and analyse ethical concerns and make reasoned ethical choices informed by professional codes of conduct.",
-    M9: "Use a risk management process to identify, evaluate and mitigate risks (the effects of uncertainty) associated with a particular project or activity.",
+    M9: "Use a risk management process to identify, evaluate and mitigate risks associated with a particular project or activity.",
     M10:"Adopt a holistic and proportionate approach to the mitigation of security risks.",
     M11:"Adopt an inclusive approach to engineering practice and recognise the responsibilities, benefits and importance of supporting equality, diversity and inclusion.",
     M12:"Use practical laboratory and workshop skills to investigate complex problems.",
@@ -213,9 +206,6 @@
     M18:"Plan and record self-learning and development as the foundation for lifelong learning/CPD."
   };
 
-  // =======================
-  // App code
-  // =======================
   const moduleSelect = document.getElementById('moduleSelect');
   const meta = document.getElementById('meta');
   const cDiv = document.getElementById('c_outcomes');
@@ -229,26 +219,16 @@
   const pgBlock = document.getElementById('pgBlock');
   const submitBtn = document.getElementById('submitBtn');
   const downloadBackup = document.getElementById('downloadBackup');
-  const videoLink = document.getElementById('videoLink');
-
-  if (VIDEO_URL) {
-    videoLink.href = VIDEO_URL;
-  } else {
-    videoLink.textContent = "add VIDEO_URL in index.html";
-    videoLink.href = "#";
-    videoLink.addEventListener("click", (e) => e.preventDefault());
-  }
 
   let modules = {};
   let currentCode = null;
 
   function buildLOList(prefix, n) {
     const out = [];
-    for (let i=1;i<=n;i++) out.push(prefix + i);
+    for (let i = 1; i <= n; i++) out.push(prefix + i);
     return out;
   }
 
-  // ✅ FULL TEXT IS SHOWN HERE
   function renderChecklist(container, los, selectedSet) {
     container.innerHTML = los.map(lo => {
       const checked = selectedSet.has(lo) ? "checked" : "";
@@ -264,13 +244,13 @@
   }
 
   function level() {
-    return document.querySelector('input[name="level"]:checked').value; // "UG" or "PGT"
+    return document.querySelector('input[name="level"]:checked').value;
   }
 
   function splitOutcomes(outcomes) {
     const cs = (outcomes || []).filter(x => x.startsWith("C"));
     const ms = (outcomes || []).filter(x => x.startsWith("M"));
-    return {cs, ms};
+    return { cs, ms };
   }
 
   function renderPrevious(outcomes) {
@@ -283,8 +263,8 @@
 
   function renderModule(code) {
     currentCode = code;
-    const entry = modules[code] || {outcomes: []};
-    const {cs, ms} = splitOutcomes(entry.outcomes || []);
+    const entry = modules[code] || { outcomes: [] };
+    const { cs, ms } = splitOutcomes(entry.outcomes || []);
     const lvl = level();
 
     const prev = (lvl === "UG") ? cs : ms;
@@ -306,15 +286,18 @@
   function getSelectedFrom(container) {
     const checks = container.querySelectorAll('input[type="checkbox"][data-lo]');
     const out = [];
-    checks.forEach(ch => { if (ch.checked) out.push(ch.getAttribute('data-lo')); });
+    checks.forEach(ch => {
+      if (ch.checked) out.push(ch.getAttribute('data-lo'));
+    });
     return out;
   }
 
   function downloadJson(obj, filename) {
-    const blob = new Blob([JSON.stringify(obj, null, 2)], {type: 'application/json'});
+    const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = filename;
+    a.href = url;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -332,42 +315,67 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
+
     const text = await res.text();
+
     if (!res.ok) throw new Error(`Worker error ${res.status}: ${text}`);
-    try { return JSON.parse(text); } catch { return { ok: true, raw: text }; }
+
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { ok: true, raw: text };
+    }
   }
 
   moduleSelect.addEventListener('change', e => renderModule(e.target.value));
+
   document.querySelectorAll('input[name="level"]').forEach(r => {
     r.addEventListener('change', () => renderModule(moduleSelect.value));
   });
 
-  document.getElementById('submitBtn').addEventListener('click', async () => {
+  submitBtn.addEventListener('click', async () => {
     const supervisor = supervisorInput.value.trim();
-    if (!supervisor) { setStatus("Please enter your name.", "status-warn"); return; }
-    if (!currentCode) { setStatus("Please select a module.", "status-warn"); return; }
 
-    const email = emailInput.value.trim().toLowerCase();
-    if (!email) { setStatus("Please enter your university email.", "status-warn"); return; }
-    if (!email.endsWith("@essex.ac.uk")) {
-      setStatus("Please use your official @essex.ac.uk email.", "status-warn");
-     return;
+    if (!supervisor) {
+      setStatus("Please enter your name.", "status-warn");
+      return;
     }
 
+    if (!currentCode) {
+      setStatus("Please select a module.", "status-warn");
+      return;
+    }
 
-    const entry = modules[currentCode] || {outcomes: []};
-    const {cs, ms} = splitOutcomes(entry.outcomes || []);
+    const email = emailInput.value.trim().toLowerCase();
+
+    if (!email) {
+      setStatus("Please enter your university email.", "status-warn");
+      return;
+    }
+
+    if (!email.endsWith("@essex.ac.uk")) {
+      setStatus("Please use your official @essex.ac.uk email.", "status-warn");
+      return;
+    }
+
+    const entry = modules[currentCode] || { outcomes: [] };
+    const { cs, ms } = splitOutcomes(entry.outcomes || []);
 
     let newCs = cs.slice();
     let newMs = ms.slice();
-    if (level() === "UG") newCs = getSelectedFrom(cDiv);
-    else newMs = getSelectedFrom(mDiv);
+
+    if (level() === "UG") {
+      newCs = getSelectedFrom(cDiv);
+    } else {
+      newMs = getSelectedFrom(mDiv);
+    }
 
     const after = [...new Set([...newCs, ...newMs])];
-    after.sort((a,b) => {
-      const pa=a[0], pb=b[0];
-      if (pa!==pb) return pa.localeCompare(pb);
-      return parseInt(a.slice(1),10)-parseInt(b.slice(1),10);
+
+    after.sort((a, b) => {
+      const pa = a[0], pb = b[0];
+      if (pa !== pb) return pa.localeCompare(pb);
+      return parseInt(a.slice(1), 10) - parseInt(b.slice(1), 10);
     });
 
     const payload = {
@@ -400,36 +408,42 @@
       }
     } catch (e) {
       console.error(e);
-      // Fallback: never lose data
-      if (downloadBackup.checked) downloadJson(payload, fname);
+
+      if (downloadBackup.checked) {
+        downloadJson(payload, fname);
+      }
+
       setStatus(`Submit failed (saved locally if enabled): ${e.message}`, "status-err");
     } finally {
       submitBtn.disabled = false;
     }
   });
 
-  (async function init(){
+  (async function init() {
     try {
       const res = await fetch('./modules_from_module_learning_outcomes.json');
-      if (!res.ok) throw new Error(`Failed to load dataset: ${res.status}`);
-      const data = await res.json();
 
-      // Support BOTH shapes:
-      //  A) { modules: { "CE101": { outcomes:[...] }, ... } }   (object/dictionary)
-      //  B) { modules: [ { code:"CE101-4-FY", outcomes:[...], ... }, ... ] }  (array)
+      if (!res.ok) {
+        throw new Error(`Failed to load dataset: ${res.status}`);
+      }
+
+      const data = await res.json();
       const normalized = {};
 
       if (Array.isArray(data.modules)) {
         data.modules.forEach((item, idx) => {
           if (!item) return;
+
           const code = item.code || item.new_name || item.module_code || String(idx);
           const outcomes = item.outcomes || item.outcomes_after || item.outcomes_before || [];
+
           normalized[code] = { outcomes };
         });
       } else if (data.modules && typeof data.modules === 'object') {
         Object.keys(data.modules).forEach(code => {
           const entry = data.modules[code] || {};
           const outcomes = entry.outcomes || entry.outcomes_after || entry.outcomes_before || [];
+
           normalized[code] = { outcomes };
         });
       } else {
@@ -438,18 +452,25 @@
 
       modules = normalized;
 
-      // Populate dropdown
-      const codes = Object.keys(modules).sort((a,b) => a.localeCompare(b, undefined, {numeric:true}));
+      const codes = Object.keys(modules).sort((a, b) =>
+        a.localeCompare(b, undefined, { numeric: true })
+      );
+
       moduleSelect.innerHTML = codes.map(c => `<option value="${c}">${c}</option>`).join('');
-      if (!codes.length) throw new Error("No modules found in dataset.");
+
+      if (!codes.length) {
+        throw new Error("No modules found in dataset.");
+      }
 
       renderModule(codes[0]);
       setStatus("Loaded dataset.", "muted");
+
     } catch (e) {
       console.error(e);
       setStatus(e.message, "status-err");
     }
   })();
 </script>
+
 </body>
 </html>
