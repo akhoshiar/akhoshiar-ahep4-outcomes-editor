@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Download AHEP4 Submissions</title>
+</head>
+<body>
+  <h2>Download AHEP4 GitHub Issues</h2>
+
+  <button onclick="downloadIssues()">Download all submissions as JSON</button>
+
+  <p id="status"></p>
+
+<script>
+const GITHUB_ISSUES_URL =
+  "https://api.github.com/repos/akhoshiar/AHEP4-outcomes-submissions/issues?state=all&per_page=100";
+
+async function downloadIssues() {
+  const status = document.getElementById("status");
+  status.textContent = "Downloading issues...";
+
+  try {
+    const response = await fetch(GITHUB_ISSUES_URL);
+
+    if (!response.ok) {
+      throw new Error("GitHub error: " + response.status);
+    }
+
+    const issues = await response.json();
+
+    const simplified = issues.map(issue => ({
+      number: issue.number,
+      title: issue.title,
+      state: issue.state,
+      created_at: issue.created_at,
+      updated_at: issue.updated_at,
+      url: issue.html_url,
+      body: issue.body
+    }));
+
+    const blob = new Blob(
+      [JSON.stringify(simplified, null, 2)],
+      { type: "application/json" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.download = "ahep4_submissions_backup.json";
+    a.click();
+
+    URL.revokeObjectURL(url);
+
+    status.textContent = "Downloaded safely. Nothing was changed.";
+
+  } catch (error) {
+    status.textContent = "Failed: " + error.message;
+  }
+}
+</script>
+</body>
+</html>
