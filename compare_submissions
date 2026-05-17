@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>AHEP4 Submission Checker</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; }
+    button { padding: 8px 12px; margin: 6px 0; cursor: pointer; }
+    textarea { width: 100%; height: 260px; margin-top: 10px; }
+    .ok { color: green; font-weight: bold; }
+    .bad { color: red; font-weight: bold; }
+  </style>
+</head>
+
+<body>
+  <h2>AHEP4 Submission Checker</h2>
+
+  <p>
+    Upload your downloaded <b>ahep4_submissions_backup.json</b> file.
+    This only reads files and does not change anything.
+  </p>
+
+  <input type="file" id="issuesFile" accept=".json">
+  <br><br>
+
+  <button onclick="compareSubmissions()">Compare submissions</button>
+  <button onclick="downloadMissingCSV()">Download missing modules CSV</button>
+
+  <h3>Summary</h3>
+  <div id="summary">No comparison run yet.</div>
+
+  <h3>Missing Modules</h3>
+  <textarea id="missingOutput" readonly></textarea>
+
+<script>
+let missingModules = [];
+
+async function compareSubmissions() {
+  const summary = document.getElementById("summary");
+  const output = document.getElementById("missingOutput");
+  const fileInput = document.getElementById("issuesFile");
+
+  summary.textContent = "Checking...";
+  output.value = "";
+  missingModules = [];
+
+  if (!fileInput.files.length) {
+    summary.innerHTML = "<span class='bad'>Please upload ahep4_submissions_backup.json first.</span>";
+    return;
+  }
+
+  try {
+    // Load full module list from your existing website file
+    const moduleRes = await fetch("./modules_from_module_learning_outcomes.json");
+    if (!moduleRes.ok) {
+      throw new Error("Could not load modules_from_module_learning_outcomes.json");
+    }
+
+    const moduleData = await moduleRes.json();
+    const allModules = Object.keys(moduleData.modules || {});
+
+    // Load downloaded GitHub issues JSON
+    const issuesText = await fileInput.files[0].text();
+    const issues = JSON.parse(issuesText);
+
+    // Extract submitted module codes from issue titles or body
+    const submittedModules = new Set();
+
+    issues.forEach(issue => {
+      let moduleCode = null;
+
+      // First try title, e.g. "CE162-4-SP (UG) – Name"
+      const titleMatch = issue.title?.match(/^([A-Z]{2,3}[0-9]{3}(?:-[0-9]-[A-Z]{2})?)/);
+      if (titleMatch) {
+        moduleCode = titleMatch[1];
+      }
+
+      // If title fails, try body line, e.g. "Module: CE162-4-SP"
+      if (!moduleCode && issue.body) {
+        const bodyMatch = issue.body.match(/Module:\s*([A-Z]{2,3}[0-9]{3}(?:-[0-9]-[A-Z]{2})?)/);
+        if (bodyMatch) {
+          moduleCode = bodyMatch[1];
+        }
+      }
+
+      if (moduleCode) {
+        submittedModules.add(moduleCode);
+      }
+    });
+
+    missingModules = allModules.filter(code => !submittedModules.has(code));
+
+    const total = allModules.length;
+    const submitted = submittedModules.size;
+    const missing = missingModules.length;
+    const percentage = total ? ((submitted / total) * 100).toFixed(1) : 0;
+
+    summary.innerHTML = `
+      Total modules: <b>${total}</b><br>
+      Submitted modules: <span class="ok">${submitted}</span><br>
+      Missing modules: <span class="bad">${missing}</span><br>
+      Completion percentage: <b>${percentage}%</b>
+    `;
+
+    output.value = missingModules.join("\n");
+
+  } catch (err) {
+    summary.innerHTML = `<span class="bad">Error: ${err.message}</span>`;
+  }
+}
+
+function downloadMissingCSV() {
+  if (!missingModules.length) {
+    alert("No missing modules found yet. Run the comparison first.");
+    return;
+  }
+
+  const csv = "module_code\n" + missingModules.join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "missing_ahep4_modules.csv";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>
